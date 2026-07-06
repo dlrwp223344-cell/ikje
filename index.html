@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>스마트학원 · 통합 학생 관리 시스템</title>
+<link rel="stylesheet" as="style" crossorigin
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+<style>
+  :root{
+    --color-bg: #F3F5FA;
+    --color-surface: #FFFFFF;
+    --color-ink: #1B2340;
+    --color-ink-soft: #6B7280;
+    --color-ink-faint: #9AA1B2;
+    --color-primary: #4453D8;
+    --color-primary-dark: #333FB0;
+    --color-primary-soft: #EEF0FD;
+    --color-present: #2F9E6E;
+    --color-present-soft: #E7F6EF;
+    --color-late: #DD9A2E;
+    --color-late-soft: #FBF1DE;
+    --color-absent: #E14F4F;
+    --color-absent-soft: #FCEAEA;
+    --color-border: #E5E8F0;
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+    --shadow-card: 0 1px 2px rgba(27,35,64,0.04), 0 8px 24px -12px rgba(27,35,64,0.12);
+  }
+
+  *{ box-sizing: border-box; }
+
+  html, body{
+    margin:0; padding:0;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button, input, select{
+    font-family: inherit;
+  }
+
+  .app{
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 24px 80px;
+  }
+
+  /* ---------- Header ---------- */
+  .app-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+  }
+
+  .brand-mark{
+    width: 42px; height:42px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--color-primary), #6B78E8);
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; font-weight:700; font-size:18px;
+    flex-shrink:0;
+  }
+
+  .brand-text h1{
+    font-size: 19px;
+    margin: 0;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+  .brand-text p{
+    margin: 2px 0 0;
+    font-size: 12.5px;
+    color: var(--color-ink-soft);
+  }
+
+  .today-pill{
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 9px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    color: var(--color-ink-soft);
+    box-shadow: var(--shadow-card);
+  }
+  .today-pill strong{ color: var(--color-ink); font-weight:600; }
+
+  /* ---------- Tabs ---------- */
+  .tabs{
+    display:flex;
+    gap: 6px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 6px;
+    border-radius: var(--radius-md);
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-card);
+    width: fit-content;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .tab-btn{
+    border: none;
+    background: transparent;
+    padding: 10px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-ink-soft);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .15s ease, color .15s ease;
+  }
+  .tab-btn:hover{ background: var(--color-primary-soft); color: var(--color-primary-dark); }
+  .tab-btn.active{
+    background: var(--color-primary);
+    color: #fff;
+  }
+
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; animation: fadein .25s ease; }
+
+  @keyframes fadein{
+    from{ opacity:0; transform: translateY(4px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  /* ---------- Cards / layout ---------- */
+  .grid{
+    display:grid;
+    gap: 18px;
+  }
+  .grid-2{ grid-template-columns: 1.05fr 1.6fr; }
+  .grid-3{ grid-template-columns: repeat(3, 1fr); }
+
+  @media (max-width: 860px){
+    .grid-2, .grid-3{ grid-template-columns: 1fr; }
+  }
+
+  .card{
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: 22px;
+  }
+
+  .card h2{
+    font-size: 16px;
+    margin: 0 0 4px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .card .card-desc{
+    font-size: 12.5px;
+    color: var(--color-ink-soft);
+    margin: 0 0 18px;
+  }
+
+  /* ---------- Form ---------- */
+  .field{
+    margin-bottom: 14px;
+  }
+  .field label{
+    display:block;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--color-ink-soft);
+    margin-bottom: 6px;
+  }
+  .field input, .field select{
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    font-size: 14px;
+    color: var(--color-ink);
+    background: #FCFCFE;
+    outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .field input:focus, .field select:focus{
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-soft);
+    background: #fff;
+  }
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 11px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s ease, transform .05s ease;
+  }
+  .btn:active{ transform: scale(0.98); }
+  .btn-primary{
+    background: var(--color-primary);
+    color: #fff;
+    width: 100%;
+  }
+  .btn-primary:hover{ background: var(--color-primary-dark); }
+
+  .btn-ghost{
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-ink-soft);
+  }
+  .btn-ghost:hover{ background: var(--color-bg); }
+
+  .btn-danger-text{
+    background: transparent;
+    border: none;
+    color: var(--color-absent);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 8px;
+  }
+  .btn-danger-text:hover{ text-decoration: underline; }
+
+  /* ---------- Table ---------- */
+  table{
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  thead th{
+    text-align: left;
+    font-size: 12px;
+    color: var(--color-ink-soft);
+    font-weight: 600;
+    padding: 0 10px 10px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  tbody td{
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
+  }
+  tbody tr:last-child td{ border-bottom: none; }
+  tbody tr:hover{ background: #FAFBFE; }
+
+  .empty-state{
+    text-align:center;
+    padding: 40px 20px;
+    color: var(--color-ink-faint);
+    font-size: 13.5px;
+  }
+  .empty-state .empty-icon{
+    font-size: 26px;
+    margin-bottom: 8px;
+    opacity: .6;
+  }
+
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .badge-present{ background: var(--color-present-soft); color: var(--color-present); }
+  .badge-late{ background: var(--color-late-soft); color: var(--color-late); }
+  .badge-absent{ background: var(--color-absent-soft); color: var(--color-absent); }
+  .badge-grade{ background: var(--color-primary-soft); color: var(--color-primary-dark); }
+
+  .score-num{
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .score-high{ color: var(--color-present); }
+  .score-mid{ color: var(--color-late); }
+  .score-low{ color: var(--color-absent); }
+
+  /* ---------- Attendance status buttons ---------- */
+  .att-btn-group{
+    display:flex;
+    gap: 6px;
+  }
+  .att-btn{
+    border: 1px solid var(--color-border);
+    background: #fff;
+    padding: 7px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--color-ink-soft);
+    transition: all .12s ease;
+  }
+  .att-btn[data-status="출석"].selected{
+    background: var(--color-present); border-color: var(--color-present); color:#fff;
+  }
+  .att-btn[data-status="지각"].selected{
+    background: var(--color-late); border-color: var(--color-late); color:#fff;
+  }
+  .att-btn[data-status="결석"].selected{
+    background: var(--color-absent); border-color: var(--color-absent); color:#fff;
+  }
+  .att-btn:hover:not(.selected){ background: var(--color-bg); }
+
+  /* ---------- Dashboard stat cards ---------- */
+  .stat-card{
+    display:flex;
+    flex-direction:column;
+    gap: 6px;
+  }
+  .stat-label{
+    font-size: 12.5px;
+    color: var(--color-ink-soft);
+    font-weight: 600;
+  }
+  .stat-value{
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .stat-sub{
+    font-size: 12px;
+    color: var(--color-ink-faint);
+  }
+
+  /* donut */
+  .donut-wrap{
+    display:flex;
+    align-items:center;
+    gap: 18px;
+  }
+  .donut-legend{
+    display:flex;
+    flex-direction:column;
+    gap: 8px;
+    font-size: 12.5px;
+  }
+  .legend-row{ display:flex; align-items:center; gap:8px; color: var(--color-ink-soft); }
+  .legend-dot{ width:9px; height:9px; border-radius:50%; }
+
+  /* select inline row */
+  .inline-row{
+    display:flex;
+    gap: 10px;
+    align-items:flex-end;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .inline-row .field{ margin-bottom:0; flex: 1; min-width: 160px; }
+
+  .section-title-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom: 14px;
+  }
+  .count-chip{
+    font-size: 12px;
+    background: var(--color-primary-soft);
+    color: var(--color-primary-dark);
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+
+  /* toast */
+  #toast{
+    position: fixed;
+    bottom: 26px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--color-ink);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    font-weight: 600;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease;
+    z-index: 999;
+  }
+  #toast.show{
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .helper-note{
+    font-size: 12px;
+    color: var(--color-ink-faint);
+    margin-top: 10px;
+  }
+
+  ::-webkit-scrollbar{ height: 8px; width: 8px; }
+  ::-webkit-scrollbar-thumb{ background: #D7DBE6; border-radius: 999px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Header -->
+  <div class="app-header">
+    <div class="brand">
+      <div class="brand-mark">학</div>
+      <div class="brand-text">
+        <h1>스마트학원 통합 학생 관리 시스템</h1>
+        <p>출결 · 성적을 한 곳에서 관리하세요</p>
+      </div>
+    </div>
+    <div class="today-pill">오늘 날짜 · <strong id="todayLabel"></strong></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="dashboard">대시보드</button>
+    <button class="tab-btn" data-tab="students">학생 관리</button>
+    <button class="tab-btn" data-tab="attendance">출결 관리</button>
+    <button class="tab-btn" data-tab="scores">성적 관리</button>
+  </div>
+
+  <!-- ================= DASHBOARD ================= -->
+  <div class="tab-panel active" id="panel-dashboard">
+    <div class="grid grid-3" style="margin-bottom:18px;">
+      <div class="card stat-card">
+        <span class="stat-label">전체 학생 수</span>
+        <span class="stat-value" id="statTotalStudents">0</span>
+        <span class="stat-sub">등록된 학생 기준</span>
+      </div>
+      <div class="card stat-card">
+        <span class="stat-label">등록된 성적 건수</span>
+        <span class="stat-value" id="statTotalScores">0</span>
+        <span class="stat-sub">전체 평균 <span id="statAvgScore">-</span>점</span>
+      </div>
+      <div class="card stat-card">
+        <span class="stat-label">오늘 출결 입력 현황</span>
+        <span class="stat-value" id="statTodayChecked">0<span style="font-size:16px;color:var(--color-ink-faint);">명</span></span>
+        <span class="stat-sub">전체 <span id="statTodayTotal">0</span>명 중</span>
+      </div>
+    </div>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <h2>오늘의 출석률</h2>
+        <p class="card-desc">전체 학생 대비 출석으로 체크된 비율입니다</p>
+        <div class="donut-wrap">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="#EEF0F5" stroke-width="14"/>
+            <circle id="donutCircle" cx="60" cy="60" r="50" fill="none" stroke="var(--color-present)"
+              stroke-width="14" stroke-linecap="round"
+              stroke-dasharray="314" stroke-dashoffset="314"
+              transform="rotate(-90 60 60)" style="transition: stroke-dashoffset .6s ease;"/>
+            <text id="donutText" x="60" y="66" text-anchor="middle" font-size="22" font-weight="800" fill="#1B2340">0%</text>
+          </svg>
+          <div class="donut-legend">
+            <div class="legend-row"><span class="legend-dot" style="background:var(--color-present);"></span>출석 <strong id="legendPresent" style="color:var(--color-ink);margin-left:auto;">0명</strong></div>
+            <div class="legend-row"><span class="legend-dot" style="background:var(--color-late);"></span>지각 <strong id="legendLate" style="color:var(--color-ink);margin-left:auto;">0명</strong></div>
+            <div class="legend-row"><span class="legend-dot" style="background:var(--color-absent);"></span>결석 <strong id="legendAbsent" style="color:var(--color-ink);margin-left:auto;">0명</strong></div>
+          </div>
+        </div>
+        <p class="helper-note">출결 관리 탭에서 오늘 날짜의 출결을 입력해 보세요.</p>
+      </div>
+
+      <div class="card">
+        <h2>최근 등록 학생</h2>
+        <p class="card-desc">가장 최근에 등록된 학생 순으로 표시됩니다</p>
+        <div id="recentStudentsList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= STUDENTS ================= -->
+  <div class="tab-panel" id="panel-students">
+    <div class="grid grid-2">
+      <div class="card">
+        <h2>학생 등록</h2>
+        <p class="card-desc">신규 학생의 정보를 입력해 주세요</p>
+        <form id="studentForm">
+          <div class="field">
+            <label for="stuName">이름</label>
+            <input type="text" id="stuName" placeholder="예: 김민준" required>
+          </div>
+          <div class="field">
+            <label for="stuGrade">학년</label>
+            <select id="stuGrade" required>
+              <option value="">학년을 선택하세요</option>
+              <optgroup label="초등학교">
+                <option value="초1">초등학교 1학년</option>
+                <option value="초2">초등학교 2학년</option>
+                <option value="초3">초등학교 3학년</option>
+                <option value="초4">초등학교 4학년</option>
+                <option value="초5">초등학교 5학년</option>
+                <option value="초6">초등학교 6학년</option>
+              </optgroup>
+              <optgroup label="중학교">
+                <option value="중1">중학교 1학년</option>
+                <option value="중2">중학교 2학년</option>
+                <option value="중3">중학교 3학년</option>
+              </optgroup>
+              <optgroup label="고등학교">
+                <option value="고1">고등학교 1학년</option>
+                <option value="고2">고등학교 2학년</option>
+                <option value="고3">고등학교 3학년</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="field">
+            <label for="stuSchool">학교</label>
+            <input type="text" id="stuSchool" placeholder="예: 서울중학교" required>
+          </div>
+          <button type="submit" class="btn btn-primary">학생 등록하기</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="section-title-row">
+          <h2 style="margin:0;">학생 명단</h2>
+          <span class="count-chip" id="studentCountChip">0명</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr><th>이름</th><th>학년</th><th>학교</th><th></th></tr>
+            </thead>
+            <tbody id="studentTableBody"></tbody>
+          </table>
+        </div>
+        <div id="studentEmptyState" class="empty-state" style="display:none;">
+          <div class="empty-icon">📋</div>
+          아직 등록된 학생이 없습니다.<br>왼쪽에서 학생을 등록해 보세요.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ATTENDANCE ================= -->
+  <div class="tab-panel" id="panel-attendance">
+    <div class="card" style="margin-bottom:18px;">
+      <div class="inline-row">
+        <div class="field">
+          <label for="attDate">출결 날짜 선택</label>
+          <input type="date" id="attDate">
+        </div>
+        <div class="field" style="max-width:220px;">
+          <label for="attSummaryLabel">해당 날짜 요약</label>
+          <div style="padding-top:6px; font-size:13px; color: var(--color-ink-soft);" id="attDateSummary">-</div>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr><th>이름</th><th>학년</th><th>학교</th><th>출결 체크</th></tr>
+          </thead>
+          <tbody id="attendanceTableBody"></tbody>
+        </table>
+      </div>
+      <div id="attendanceEmptyState" class="empty-state" style="display:none;">
+        <div class="empty-icon">🗓️</div>
+        등록된 학생이 없습니다.<br>먼저 학생 관리 탭에서 학생을 등록해 주세요.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title-row">
+        <h2 style="margin:0;">학생별 출결 기록 조회</h2>
+      </div>
+      <div class="inline-row">
+        <div class="field">
+          <label for="attHistoryStudent">학생 선택</label>
+          <select id="attHistoryStudent">
+            <option value="">학생을 선택하세요</option>
+          </select>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>날짜</th><th>출결 상태</th></tr></thead>
+          <tbody id="attHistoryBody"></tbody>
+        </table>
+      </div>
+      <div id="attHistoryEmpty" class="empty-state">
+        <div class="empty-icon">🔍</div>
+        학생을 선택하면 출결 기록이 표시됩니다.
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SCORES ================= -->
+  <div class="tab-panel" id="panel-scores">
+    <div class="grid grid-2">
+      <div class="card">
+        <h2>성적 등록</h2>
+        <p class="card-desc">학생의 테스트 결과를 입력해 주세요</p>
+        <form id="scoreForm">
+          <div class="field">
+            <label for="scoreStudent">학생</label>
+            <select id="scoreStudent" required>
+              <option value="">학생을 선택하세요</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="scoreTestName">시험명</label>
+            <input type="text" id="scoreTestName" placeholder="예: 3월 모의고사, 단원평가 2회" required>
+          </div>
+          <div class="field">
+            <label for="scoreValue">점수 (0~100)</label>
+            <input type="number" id="scoreValue" min="0" max="100" placeholder="예: 87" required>
+          </div>
+          <div class="field">
+            <label for="scoreDate">시험 날짜</label>
+            <input type="date" id="scoreDate" required>
+          </div>
+          <button type="submit" class="btn btn-primary">성적 등록하기</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="section-title-row">
+          <h2 style="margin:0;">성적 목록</h2>
+          <span class="count-chip" id="scoreCountChip">0건</span>
+        </div>
+        <div class="inline-row" style="margin-bottom:14px;">
+          <div class="field">
+            <label for="scoreFilterStudent">학생별 필터</label>
+            <select id="scoreFilterStudent">
+              <option value="">전체 학생 보기</option>
+            </select>
+          </div>
+          <div class="field" style="max-width:160px;">
+            <label>선택 학생 평균</label>
+            <div style="padding-top:6px; font-size:15px; font-weight:700;" id="filterAvgScore">-</div>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>학생</th><th>시험명</th><th>점수</th><th>날짜</th><th></th></tr></thead>
+            <tbody id="scoreTableBody"></tbody>
+          </table>
+        </div>
+        <div id="scoreEmptyState" class="empty-state" style="display:none;">
+          <div class="empty-icon">📝</div>
+          등록된 성적이 없습니다.<br>왼쪽에서 성적을 등록해 보세요.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------------------------------------------
+     상태 (데이터는 새로고침 시 초기화되며, 브라우저 메모리에만 저장됩니다)
+  --------------------------------------------------- */
+  let students = [];      // {id, name, grade, school, createdAt}
+  let attendance = [];     // {id, studentId, date, status}
+  let scores = [];         // {id, studentId, testName, score, date}
+
+  let idCounter = 1;
+  function nextId(){ return idCounter++; }
+
+  function todayStr(){
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function formatDateKR(dateStr){
+    if(!dateStr) return '-';
+    const [y,m,d] = dateStr.split('-');
+    return `${y}년 ${parseInt(m)}월 ${parseInt(d)}일`;
+  }
+
+  /* ---------------------------------------------------
+     Toast
+  --------------------------------------------------- */
+  let toastTimer = null;
+  function showToast(msg){
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> toast.classList.remove('show'), 1800);
+  }
+
+  /* ---------------------------------------------------
+     Tabs
+  --------------------------------------------------- */
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+      if(btn.dataset.tab === 'dashboard') renderDashboard();
+    });
+  });
+
+  /* ---------------------------------------------------
+     학생 관리
+  --------------------------------------------------- */
+  const studentForm = document.getElementById('studentForm');
+  const studentTableBody = document.getElementById('studentTableBody');
+  const studentEmptyState = document.getElementById('studentEmptyState');
+  const studentCountChip = document.getElementById('studentCountChip');
+
+  studentForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    const name = document.getElementById('stuName').value.trim();
+    const grade = document.getElementById('stuGrade').value;
+    const school = document.getElementById('stuSchool').value.trim();
+    if(!name || !grade || !school){ return; }
+
+    students.push({
+      id: nextId(),
+      name, grade, school,
+      createdAt: Date.now()
+    });
+
+    studentForm.reset();
+    renderAll();
+    showToast(`${name} 학생이 등록되었습니다`);
+  });
+
+  function deleteStudent(id){
+    const target = students.find(s=>s.id===id);
+    if(!target) return;
+    if(!confirm(`${target.name} 학생을 삭제하시겠습니까?\n관련된 출결/성적 기록도 함께 삭제됩니다.`)) return;
+    students = students.filter(s=>s.id!==id);
+    attendance = attendance.filter(a=>a.studentId!==id);
+    scores = scores.filter(sc=>sc.studentId!==id);
+    renderAll();
+    showToast('학생 정보가 삭제되었습니다');
+  }
+
+  function gradeLabel(grade){ return grade || '-'; }
+
+  function renderStudentTable(){
+    studentTableBody.innerHTML = '';
+    studentCountChip.textContent = `${students.length}명`;
+
+    if(students.length === 0){
+      studentEmptyState.style.display = 'block';
+      return;
+    }
+    studentEmptyState.style.display = 'none';
+
+    const sorted = [...students].sort((a,b)=>a.createdAt-b.createdAt);
+    sorted.forEach(s=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${escapeHTML(s.name)}</strong></td>
+        <td><span class="badge badge-grade">${escapeHTML(gradeLabel(s.grade))}</span></td>
+        <td>${escapeHTML(s.school)}</td>
+        <td><button class="btn-danger-text" data-delete-student="${s.id}">삭제</button></td>
+      `;
+      studentTableBody.appendChild(tr);
+    });
+  }
+
+  studentTableBody.addEventListener('click', function(e){
+    const btn = e.target.closest('[data-delete-student]');
+    if(!btn) return;
+    deleteStudent(Number(btn.dataset.deleteStudent));
+  });
+
+  function escapeHTML(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  /* ---------------------------------------------------
+     출결 관리
+  --------------------------------------------------- */
+  const attDateInput = document.getElementById('attDate');
+  const attendanceTableBody = document.getElementById('attendanceTableBody');
+  const attendanceEmptyState = document.getElementById('attendanceEmptyState');
+  const attDateSummary = document.getElementById('attDateSummary');
+  const attHistoryStudent = document.getElementById('attHistoryStudent');
+  const attHistoryBody = document.getElementById('attHistoryBody');
+  const attHistoryEmpty = document.getElementById('attHistoryEmpty');
+
+  attDateInput.value = todayStr();
+
+  attDateInput.addEventListener('change', renderAttendanceTable);
+
+  function upsertAttendance(studentId, date, status){
+    const existing = attendance.find(a=>a.studentId===studentId && a.date===date);
+    if(existing){
+      existing.status = status;
+    } else {
+      attendance.push({ id: nextId(), studentId, date, status });
+    }
+  }
+
+  function getAttendanceStatus(studentId, date){
+    const rec = attendance.find(a=>a.studentId===studentId && a.date===date);
+    return rec ? rec.status : null;
+  }
+
+  function renderAttendanceTable(){
+    const date = attDateInput.value || todayStr();
+    attendanceTableBody.innerHTML = '';
+
+    if(students.length === 0){
+      attendanceEmptyState.style.display = 'block';
+      attDateSummary.textContent = '-';
+      return;
+    }
+    attendanceEmptyState.style.display = 'none';
+
+    let present=0, late=0, absent=0;
+
+    students.forEach(s=>{
+      const status = getAttendanceStatus(s.id, date);
+      if(status === '출석') present++;
+      else if(status === '지각') late++;
+      else if(status === '결석') absent++;
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${escapeHTML(s.name)}</strong></td>
+        <td><span class="badge badge-grade">${escapeHTML(gradeLabel(s.grade))}</span></td>
+        <td>${escapeHTML(s.school)}</td>
+        <td>
+          <div class="att-btn-group">
+            <button class="att-btn ${status==='출석' ? 'selected':''}" data-att-student="${s.id}" data-status="출석">출석</button>
+            <button class="att-btn ${status==='지각' ? 'selected':''}" data-att-student="${s.id}" data-status="지각">지각</button>
+            <button class="att-btn ${status==='결석' ? 'selected':''}" data-att-student="${s.id}" data-status="결석">결석</button>
+          </div>
+        </td>
+      `;
+      attendanceTableBody.appendChild(tr);
+    });
+
+    const checked = present+late+absent;
+    attDateSummary.textContent = `출석 ${present} · 지각 ${late} · 결석 ${absent} (총 ${checked}/${students.length}명 입력됨)`;
+  }
+
+  attendanceTableBody.addEventListener('click', function(e){
+    const btn = e.target.closest('[data-att-student]');
+    if(!btn) return;
+    const studentId = Number(btn.dataset.attStudent);
+    const status = btn.dataset.status;
+    const date = attDateInput.value || todayStr();
+    upsertAttendance(studentId, date, status);
+    renderAttendanceTable();
+    renderDashboard();
+    if(attHistoryStudent.value && Number(attHistoryStudent.value) === studentId){
+      renderAttHistory();
+    }
+    showToast(`${formatDateKR(date)} 출결이 저장되었습니다`);
+  });
+
+  function renderAttHistoryOptions(){
+    const currentVal = attHistoryStudent.value;
+    attHistoryStudent.innerHTML = '<option value="">학생을 선택하세요</option>';
+    students.forEach(s=>{
+      const opt = document.createElement('option');
+      opt.value = s.id;
+      opt.textContent = `${s.name} (${gradeLabel(s.grade)})`;
+      attHistoryStudent.appendChild(opt);
+    });
+    if(currentVal && students.some(s=>String(s.id)===currentVal)){
+      attHistoryStudent.value = currentVal;
+    }
+  }
+
+  attHistoryStudent.addEventListener('change', renderAttHistory);
+
+  function renderAttHistory(){
+    const studentId = Number(attHistoryStudent.value);
+    attHistoryBody.innerHTML = '';
+
+    if(!studentId){
+      attHistoryEmpty.style.display = 'block';
+      attHistoryEmpty.querySelector('div, br') ;
+      attHistoryEmpty.innerHTML = '<div class="empty-icon">🔍</div>학생을 선택하면 출결 기록이 표시됩니다.';
+      return;
+    }
+
+    const records = attendance
+      .filter(a=>a.studentId===studentId)
+      .sort((a,b)=> b.date.localeCompare(a.date));
+
+    if(records.length === 0){
+      attHistoryEmpty.style.display = 'block';
+      attHistoryEmpty.innerHTML = '<div class="empty-icon">📭</div>해당 학생의 출결 기록이 아직 없습니다.';
+      return;
+    }
+    attHistoryEmpty.style.display = 'none';
+
+    records.forEach(r=>{
+      const badgeClass = r.status==='출석' ? 'badge-present' : r.status==='지각' ? 'badge-late' : 'badge-absent';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${formatDateKR(r.date)}</td>
+        <td><span class="badge ${badgeClass}">${r.status}</span></td>
+      `;
+      attHistoryBody.appendChild(tr);
+    });
+  }
+
+  /* ---------------------------------------------------
+     성적 관리
+  --------------------------------------------------- */
+  const scoreForm = document.getElementById('scoreForm');
+  const scoreStudentSelect = document.getElementById('scoreStudent');
+  const scoreFilterStudent = document.getElementById('scoreFilterStudent');
+  const scoreTableBody = document.getElementById('scoreTableBody');
+  const scoreEmptyState = document.getElementById('scoreEmptyState');
+  const scoreCountChip = document.getElementById('scoreCountChip');
+  const filterAvgScore = document.getElementById('filterAvgScore');
+  const scoreDateInput = document.getElementById('scoreDate');
+
+  scoreDateInput.value = todayStr();
+
+  scoreForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    const studentId = Number(scoreStudentSelect.value);
+    const testName = document.getElementById('scoreTestName').value.trim();
+    const scoreValue = Number(document.getElementById('scoreValue').value);
+    const date = scoreDateInput.value;
+
+    if(!studentId || !testName || isNaN(scoreValue) || !date) return;
+    if(scoreValue < 0 || scoreValue > 100){
+      alert('점수는 0에서 100 사이로 입력해 주세요.');
+      return;
+    }
+
+    scores.push({ id: nextId(), studentId, testName, score: scoreValue, date });
+    scoreForm.reset();
+    scoreDateInput.value = todayStr();
+    renderScores();
+    renderDashboard();
+    const stu = students.find(s=>s.id===studentId);
+    showToast(`${stu ? stu.name : ''} 학생의 성적이 등록되었습니다`);
+  });
+
+  function deleteScore(id){
+    scores = scores.filter(sc=>sc.id!==id);
+    renderScores();
+    renderDashboard();
+    showToast('성적 기록이 삭제되었습니다');
+  }
+
+  function scoreClass(v){
+    if(v >= 80) return 'score-high';
+    if(v >= 60) return 'score-mid';
+    return 'score-low';
+  }
+
+  function renderScoreSelectOptions(){
+    [scoreStudentSelect, scoreFilterStudent].forEach(sel=>{
+      const isFilter = sel === scoreFilterStudent;
+      const currentVal = sel.value;
+      sel.innerHTML = isFilter
+        ? '<option value="">전체 학생 보기</option>'
+        : '<option value="">학생을 선택하세요</option>';
+      students.forEach(s=>{
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = `${s.name} (${gradeLabel(s.grade)})`;
+        sel.appendChild(opt);
+      });
+      if(currentVal && (currentVal==='' || students.some(s=>String(s.id)===currentVal))){
+        sel.value = currentVal;
+      }
+    });
+  }
+
+  scoreFilterStudent.addEventListener('change', renderScores);
+
+  function renderScores(){
+    const filterId = scoreFilterStudent.value ? Number(scoreFilterStudent.value) : null;
+    const list = (filterId ? scores.filter(sc=>sc.studentId===filterId) : scores)
+      .slice()
+      .sort((a,b)=> b.date.localeCompare(a.date));
+
+    scoreCountChip.textContent = `${list.length}건`;
+    scoreTableBody.innerHTML = '';
+
+    if(list.length === 0){
+      scoreEmptyState.style.display = 'block';
+    } else {
+      scoreEmptyState.style.display = 'none';
+      list.forEach(sc=>{
+        const stu = students.find(s=>s.id===sc.studentId);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${escapeHTML(stu ? stu.name : '(삭제된 학생)')}</strong></td>
+          <td>${escapeHTML(sc.testName)}</td>
+          <td><span class="score-num ${scoreClass(sc.score)}">${sc.score}점</span></td>
+          <td>${formatDateKR(sc.date)}</td>
+          <td><button class="btn-danger-text" data-delete-score="${sc.id}">삭제</button></td>
+        `;
+        scoreTableBody.appendChild(tr);
+      });
+    }
+
+    if(filterId){
+      const relevant = scores.filter(sc=>sc.studentId===filterId);
+      if(relevant.length){
+        const avg = relevant.reduce((sum,sc)=>sum+sc.score,0) / relevant.length;
+        filterAvgScore.textContent = avg.toFixed(1) + '점';
+      } else {
+        filterAvgScore.textContent = '-';
+      }
+    } else {
+      filterAvgScore.textContent = '-';
+    }
+  }
+
+  scoreTableBody.addEventListener('click', function(e){
+    const btn = e.target.closest('[data-delete-score]');
+    if(!btn) return;
+    deleteScore(Number(btn.dataset.deleteScore));
+  });
+
+  /* ---------------------------------------------------
+     대시보드
+  --------------------------------------------------- */
+  function renderDashboard(){
+    document.getElementById('statTotalStudents').textContent = students.length;
+    document.getElementById('statTotalScores').textContent = scores.length;
+
+    if(scores.length){
+      const avg = scores.reduce((sum,sc)=>sum+sc.score,0) / scores.length;
+      document.getElementById('statAvgScore').textContent = avg.toFixed(1);
+    } else {
+      document.getElementById('statAvgScore').textContent = '-';
+    }
+
+    const today = todayStr();
+    const todayRecords = attendance.filter(a=>a.date===today);
+    const present = todayRecords.filter(a=>a.status==='출석').length;
+    const late = todayRecords.filter(a=>a.status==='지각').length;
+    const absent = todayRecords.filter(a=>a.status==='결석').length;
+
+    document.getElementById('statTodayChecked').innerHTML = `${todayRecords.length}<span style="font-size:16px;color:var(--color-ink-faint);">명</span>`;
+    document.getElementById('statTodayTotal').textContent = students.length;
+
+    document.getElementById('legendPresent').textContent = `${present}명`;
+    document.getElementById('legendLate').textContent = `${late}명`;
+    document.getElementById('legendAbsent').textContent = `${absent}명`;
+
+    const rate = students.length ? Math.round((present/students.length)*100) : 0;
+    const circumference = 314;
+    const offset = circumference - (circumference * rate/100);
+    document.getElementById('donutCircle').setAttribute('stroke-dashoffset', offset);
+    document.getElementById('donutText').textContent = rate + '%';
+
+    const recentList = document.getElementById('recentStudentsList');
+    const recent = [...students].sort((a,b)=>b.createdAt-a.createdAt).slice(0,5);
+    if(recent.length === 0){
+      recentList.innerHTML = `<div class="empty-state" style="padding:24px 10px;"><div class="empty-icon">👋</div>등록된 학생이 아직 없습니다.</div>`;
+    } else {
+      recentList.innerHTML = recent.map(s=>`
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--color-border);">
+          <div>
+            <strong>${escapeHTML(s.name)}</strong>
+            <span style="color:var(--color-ink-soft); font-size:12.5px; margin-left:6px;">${escapeHTML(s.school)}</span>
+          </div>
+          <span class="badge badge-grade">${escapeHTML(gradeLabel(s.grade))}</span>
+        </div>
+      `).join('');
+    }
+  }
+
+  /* ---------------------------------------------------
+     전체 렌더링
+  --------------------------------------------------- */
+  function renderAll(){
+    renderStudentTable();
+    renderAttendanceTable();
+    renderAttHistoryOptions();
+    renderAttHistory();
+    renderScoreSelectOptions();
+    renderScores();
+    renderDashboard();
+  }
+
+  /* ---------------------------------------------------
+     초기화
+  --------------------------------------------------- */
+  document.getElementById('todayLabel').textContent = formatDateKR(todayStr());
+  renderAll();
+
+})();
+</script>
+</body>
+</html>
