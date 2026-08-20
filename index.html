@@ -21,6 +21,18 @@
 /* Mobile legibility and touch QA */
 .day{-webkit-tap-highlight-color:rgba(141,98,179,.2);touch-action:manipulation}.day:active{background:#f0e5fa}.day:focus-visible{position:relative;z-index:1;outline:3px solid #6f4692;outline-offset:-3px}.school-open h3,.drawer-head h2{word-break:keep-all;overflow-wrap:anywhere}
 @media(max-width:640px){.school-row .school-open h3{display:block!important;min-height:34px!important;overflow:visible!important;white-space:pre-line!important;-webkit-box-orient:initial!important;-webkit-line-clamp:unset!important;line-clamp:unset!important;word-break:keep-all;overflow-wrap:anywhere;font-size:12px!important;line-height:1.35}.day{min-height:78px!important;padding:5px 3px!important}.day>time{display:grid;width:25px;height:25px;place-items:center;margin:0 auto 3px!important;border-radius:50%;font-size:11px!important}.day.active>time{background:var(--main);color:#fff}.day .chip{height:10px!important;margin:3px 1px!important}.day .overflow{font-size:8px!important;font-weight:800}.agenda{scroll-margin-top:10px}.drawer-head h2{font-size:22px!important;line-height:1.3}}
+/* Final mobile width guard: later desktop search rules must not override this. */
+@media(max-width:760px){
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+.hero,.hero-inner,.app,.toolbar,.selected,#content{min-width:0;max-width:100%}
+.search{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;width:100%!important;max-width:100%!important;gap:7px!important}
+.search input{grid-column:1/-1!important}
+.search input,.search select,.search button{min-width:0!important;width:100%!important;max-width:100%!important;height:46px!important;padding-left:11px!important;padding-right:11px!important;font-size:16px!important}
+}
+@media(max-width:360px){
+.search{grid-template-columns:1fr!important}
+.search input{grid-column:auto!important}
+}
 </style>
 </head>
 <body>
